@@ -1,9 +1,32 @@
-import tkinter # note that module name has changed from Tkinter in Python 2 to tkinter in Python 3
+
+"""
+*******************************************************************
+                    Arquitectura de Computadores 2
+*******************************************************************
+        Programmer: 
+                
+                Yenira Chacon Molina
+                
+        Programming language: Python 3.9
+        
+        Version: 0.19b
+        
+        Last modified: 18/06/2020
+        
+        Description:    
+                    Multiprocessor Simulator
+*******************************************************************
+"""
+
+##IMPORTS##
+
+import tkinter
+import threading
 
 
-def clicked(event):
-    
-    print("pressed")
+###############################################################
+#--------------------#GRAPHICS AND EVENTS#--------------------#
+###############################################################
     
 top = tkinter.Tk(className = "-Multiprocessor Simulation-")
 
@@ -11,6 +34,52 @@ top.geometry("1100x700")
 
 top.configure(bg = '#2C70A9')
 
+#Function that starts the program
+def start(event):
+    create_threads()
+
+def openMemoryWindow(event):
+    mem = tkinter.Tk(className = "-Memory-")
+    
+    mem.geometry("580x500")
+    
+    mem.configure(bg = '#2C70A9')
+
+    memCanvas = tkinter.Canvas(mem, width=580, height=500, bg = '#2C70A9')
+
+    memCanvas.create_rectangle(80, 50, 280, 100, fill='#B180B6') #1
+
+    memCanvas.create_rectangle(80, 100, 280, 150, fill='#B180B6') #2
+
+    memCanvas.create_rectangle(80, 150, 280, 200, fill='#B180B6') #3
+
+    memCanvas.create_rectangle(80, 200, 280, 250, fill='#B180B6') #4
+
+    memCanvas.create_rectangle(80, 250, 280, 300, fill='#B180B6') #5
+    
+    memCanvas.create_rectangle(80, 300, 280, 350, fill='#B180B6') #6
+
+    memCanvas.create_rectangle(80, 350, 280, 400, fill='#B180B6') #7
+
+    memCanvas.create_rectangle(80, 400, 280, 450, fill='#B180B6') #8
+
+    memCanvas.create_rectangle(300, 50, 500, 100, fill='#B180B6') #9
+
+    memCanvas.create_rectangle(300, 100, 500, 150, fill='#B180B6') #10
+
+    memCanvas.create_rectangle(300, 150, 500, 200, fill='#B180B6') #11
+
+    memCanvas.create_rectangle(300, 200, 500, 250, fill='#B180B6') #12
+
+    memCanvas.create_rectangle(300, 250, 500, 300, fill='#B180B6') #13
+    
+    memCanvas.create_rectangle(300, 300, 500, 350, fill='#B180B6') #14
+
+    memCanvas.create_rectangle(300, 350, 500, 400, fill='#B180B6') #15
+
+    memCanvas.create_rectangle(300, 400, 500, 450, fill='#B180B6') #16
+
+    memCanvas.pack()
 
 
 #PROCESSORS
@@ -80,13 +149,55 @@ canvas.create_line(930, 300, 930, 400)
 
 canvas.create_line(570, 450, 570, 550)
 
-button = canvas.create_text(150, 600, text="START SIMULATION", font = "Arial")
+#BUTTONS
 
-canvas.tag_bind(button, "<Button-1>", clicked)
+#Initialize simulation
+button = canvas.create_text(150, 600, text="START SIMULATION", font = "Arial")
+canvas.tag_bind(button, "<Button-1>", start)
+
+#Opens Memory Window to check spaces
+button = canvas.create_text(570, 583, text="MEMORY", font = "Arial")
+canvas.tag_bind(button, "<Button-1>", openMemoryWindow)
 
 canvas.pack()
 
 
-# Code to add widgets will go here...
+###########################################################
+#-----------------------#THREADING#-----------------------#
+###########################################################
+
+#Create threads to initialize the 4 processors
+def create_threads():
+    
+    t1 = threading.Thread(target = processor, args = (1,)) 
+    t2 = threading.Thread(target = processor, args = (2,))
+    t3 = threading.Thread(target = processor, args = (3,))
+    t4 = threading.Thread(target = processor, args = (4,))
+   
+    t1.start()  
+    t2.start() 
+    t3.start() 
+    t4.start()
+  
+    t1.join() 
+    t2.join()
+    t3.join()
+    t4.join()
+  
+    # Threads successfully executed 
+    print("Processors executed!")
+
+#Function that initializes the processor    
+def processor(idP):
+    
+    if (idP == 1):
+        print("Es el procesador 1")
+    elif (idP == 2):
+        print("Es el procesador 2")
+    elif (idP == 3):
+        print("Es el procesador 3")
+    else:
+        print("Es el procesador 4")
+
 
 top.mainloop()
