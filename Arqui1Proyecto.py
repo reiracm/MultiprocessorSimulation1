@@ -22,7 +22,7 @@
 
 import tkinter
 import threading
-
+from numpy import random
 
 ###############################################################
 #--------------------#GRAPHICS AND EVENTS#--------------------#
@@ -30,7 +30,7 @@ import threading
     
 top = tkinter.Tk(className = "-Multiprocessor Simulation-")
 
-top.geometry("1100x700")
+top.geometry("1400x700")
 
 top.configure(bg = '#2C70A9')
 
@@ -38,53 +38,10 @@ top.configure(bg = '#2C70A9')
 def start(event):
     create_threads()
 
-def openMemoryWindow(event):
-    mem = tkinter.Tk(className = "-Memory-")
-    
-    mem.geometry("580x500")
-    
-    mem.configure(bg = '#2C70A9')
-
-    memCanvas = tkinter.Canvas(mem, width=580, height=500, bg = '#2C70A9')
-
-    memCanvas.create_rectangle(80, 50, 280, 100, fill='#B180B6') #1
-
-    memCanvas.create_rectangle(80, 100, 280, 150, fill='#B180B6') #2
-
-    memCanvas.create_rectangle(80, 150, 280, 200, fill='#B180B6') #3
-
-    memCanvas.create_rectangle(80, 200, 280, 250, fill='#B180B6') #4
-
-    memCanvas.create_rectangle(80, 250, 280, 300, fill='#B180B6') #5
-    
-    memCanvas.create_rectangle(80, 300, 280, 350, fill='#B180B6') #6
-
-    memCanvas.create_rectangle(80, 350, 280, 400, fill='#B180B6') #7
-
-    memCanvas.create_rectangle(80, 400, 280, 450, fill='#B180B6') #8
-
-    memCanvas.create_rectangle(300, 50, 500, 100, fill='#B180B6') #9
-
-    memCanvas.create_rectangle(300, 100, 500, 150, fill='#B180B6') #10
-
-    memCanvas.create_rectangle(300, 150, 500, 200, fill='#B180B6') #11
-
-    memCanvas.create_rectangle(300, 200, 500, 250, fill='#B180B6') #12
-
-    memCanvas.create_rectangle(300, 250, 500, 300, fill='#B180B6') #13
-    
-    memCanvas.create_rectangle(300, 300, 500, 350, fill='#B180B6') #14
-
-    memCanvas.create_rectangle(300, 350, 500, 400, fill='#B180B6') #15
-
-    memCanvas.create_rectangle(300, 400, 500, 450, fill='#B180B6') #16
-
-    memCanvas.pack()
-
 
 #PROCESSORS
 
-canvas = tkinter.Canvas(top, width=1200, height=700, bg = '#2C70A9')
+canvas = tkinter.Canvas(top, width=1400, height=700, bg = '#2C70A9')
 
 canvas.create_rectangle(80, 70, 280, 300, fill='#7D8287')
 
@@ -135,6 +92,38 @@ canvas.create_rectangle(80, 400, 1030, 450, fill='#7D8287')
 
 canvas.create_rectangle(470, 550, 670, 620, fill='#7D8287')
 
+canvas.create_rectangle(1100, 50, 1200, 100, fill='#B180B6') #1
+
+canvas.create_rectangle(1100, 100, 1200, 150, fill='#B180B6') #2
+
+canvas.create_rectangle(1100, 150, 1200, 200, fill='#B180B6') #3
+
+canvas.create_rectangle(1100, 200, 1200, 250, fill='#B180B6') #4
+
+canvas.create_rectangle(1100, 250, 1200, 300, fill='#B180B6') #5
+    
+canvas.create_rectangle(1100, 300, 1200, 350, fill='#B180B6') #6
+
+canvas.create_rectangle(1100, 350, 1200, 400, fill='#B180B6') #7
+
+canvas.create_rectangle(1100, 400, 1200, 450, fill='#B180B6') #8
+
+canvas.create_rectangle(1250, 50, 1350, 100, fill='#B180B6') #9
+
+canvas.create_rectangle(1250, 100, 1350, 150, fill='#B180B6') #10
+
+canvas.create_rectangle(1250, 150, 1350, 200, fill='#B180B6') #11
+
+canvas.create_rectangle(1250, 200, 1350, 250, fill='#B180B6') #12
+
+canvas.create_rectangle(1250, 250, 1350, 300, fill='#B180B6') #13
+    
+canvas.create_rectangle(1250, 300, 1350, 350, fill='#B180B6') #14
+
+canvas.create_rectangle(1250, 350, 1350, 400, fill='#B180B6') #15
+
+canvas.create_rectangle(1250, 400, 1350, 450, fill='#B180B6') #16
+
 
 
 #LINES
@@ -156,8 +145,8 @@ button = canvas.create_text(150, 600, text="START SIMULATION", font = "Arial")
 canvas.tag_bind(button, "<Button-1>", start)
 
 #Opens Memory Window to check spaces
-button = canvas.create_text(570, 583, text="MEMORY", font = "Arial")
-canvas.tag_bind(button, "<Button-1>", openMemoryWindow)
+##button = canvas.create_text(570, 583, text="MEMORY", font = "Arial")
+##canvas.tag_bind(button, "<Button-1>", openMemoryWindow)
 
 canvas.pack()
 
@@ -199,5 +188,48 @@ def processor(idP):
     else:
         print("Es el procesador 4")
 
+###########################################################
+#-----------------#INSTRUCTION GENERATOR#-----------------#
+###########################################################
+
+#Function that calculates Binomial distribution
+def calculate_instruction():
+    
+    x = random.binomial(n=2, p=0.5, size=10)
+    print(x)
+    calcCounter = 0
+    readCounter = 0
+    writeCounter = 0
+    i = 0
+
+    while(i<=9):
+
+        if(x[i] == 0):
+            calcCounter += 1
+        elif(x[i] == 1):
+            readCounter += 1
+        else:
+            writeCounter += 1
+        i += 1
+    if(calcCounter>=readCounter and calcCounter>=writeCounter):
+        return calc()
+    elif(readCounter>=calcCounter and readCounter>=writeCounter):
+        return read()
+    else:
+        return write()
+
+
+
+
+def read():
+    print("read")
+
+def write():
+    print("write")
+
+def calc():
+    print("calc")
 
 top.mainloop()
+
+
