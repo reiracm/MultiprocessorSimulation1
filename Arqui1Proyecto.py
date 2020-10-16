@@ -22,6 +22,7 @@
 
 import tkinter
 import threading
+import time
 from numpy import random
 
 ###############################################################
@@ -144,9 +145,10 @@ canvas.create_line(570, 450, 570, 550)
 button = canvas.create_text(150, 600, text="START SIMULATION", font = "Arial")
 canvas.tag_bind(button, "<Button-1>", start)
 
-#Opens Memory Window to check spaces
-##button = canvas.create_text(570, 583, text="MEMORY", font = "Arial")
-##canvas.tag_bind(button, "<Button-1>", openMemoryWindow)
+#End simulation
+##button = canvas.create_text(150, 650, text="END SIMULATION", font = "Arial")
+##canvas.tag_bind(button, "<Button-1>", end)
+
 
 canvas.pack()
 
@@ -167,7 +169,7 @@ def create_threads():
     t2.start() 
     t3.start() 
     t4.start()
-  
+      
     t1.join() 
     t2.join()
     t3.join()
@@ -178,15 +180,14 @@ def create_threads():
 
 #Function that initializes the processor    
 def processor(idP):
-    
-    if (idP == 1):
-        print("Es el procesador 1")
-    elif (idP == 2):
-        print("Es el procesador 2")
-    elif (idP == 3):
-        print("Es el procesador 3")
-    else:
-        print("Es el procesador 4")
+    i = 3
+    while(i != 0):
+        x = calculate_instruction()
+        print(x)
+        time.sleep(3)
+        i -= 1
+    return "listo"
+
 
 ###########################################################
 #-----------------#INSTRUCTION GENERATOR#-----------------#
@@ -196,7 +197,6 @@ def processor(idP):
 def calculate_instruction():
     
     x = random.binomial(n=2, p=0.5, size=10)
-    print(x)
     calcCounter = 0
     readCounter = 0
     writeCounter = 0
@@ -219,8 +219,6 @@ def calculate_instruction():
         return write()
 
 
-
-
 def read():
     print("read")
 
@@ -230,6 +228,50 @@ def write():
 def calc():
     print("calc")
 
+###########################################################
+#------------------#DIRECTION GENERATOR#------------------#
+###########################################################
+
+def direction_generator():
+    
+    x = random.poisson(lam=9, size=20)
+    l = list(x)
+    print(l)
+    
+    a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p = l.count(0), l.count(1), l.count(2), l.count(3), l.count(4), l.count(5), l.count(6), l.count(7), l.count(8), l.count(9), l.count(10), l.count(11), l.count(12), l.count(13), l.count(14), l.count(15)
+
+    if(a >= b and a >=c and a >= d and a >= e and a >=f and a >= g and a >= h and a >= i and a >= j and a >= k and a >=l and a >= m and a >= n and a >= o and a >= p):
+        return 0
+    elif(b >= a and b >=c and b >= d and b >= e and b >=f and b >= g and b >= h and b >= i and b >= j and b >= k and b >= l and b >= m and b >= n and b >= o and b >=p):
+        return 1
+    elif(c >= a and c >= b and c >= d and c >= e and c >=f and c >= g and c >= h and c >= i and c >=j and c >= k and c >=l and c >= m and c >= n and c >= o and c >= p):
+        return 2
+    elif(d >= a and d >= b and d >= c and d >= e and d >= f and d >= g and d >= h and d >= i and d >= j and d >= k and d >= l and d >= m and d >= n and d >= o and d >= p):
+        return 3
+    elif(e >= a and e >= b and e >= c and e >= d and e >= f and e >= g and e >= h and e >= i and e >= j and e >= k and e >= l and e >= m and e >= n and e >= o and e >= p):
+        return 4
+    elif(f >= a and f >= b and f >= c and f >= d and f >= e and f >= g and f >= h and f >= i and f >= j and f >= k and f >= l and f >= m and f >= n and f >= o and f >= p):
+        return 5
+    elif(g >= a and g >= b and g >= c and g >= d and g >= e and g >= f and g >= h and g >= i and g >= j and g >= k and g >= l and g >= m and g >= n and g >= o and g >= p):
+        return 6
+    elif(h >= a and h >= b and h >= c and h >= d and h >= e and h >= f and h >= g and h >= i and h >= j and h >= k and h >= l and h >= m and h >= n and h >= o and h >= p):
+        return 7
+    elif(i >= a and i >= b and i >= c and i >= d and i >= e and i >= f and i >= g and i >= h and i >= j and i >= k and i >= l and i >= m and i >= n and i >= o and i >= p):
+        return 8
+    elif(j >= a and j >= b and j >= c and j >= d and j >= e and j >= f and j >= g and j >= h and j >= i and j >= k and j >= l and j >= m and j >= n and j >= o and j >= p):
+        return 9
+    elif(k >= a and k >= b and k >= c and k >= d and k >= e and k >= f and k >= g and k >= h and k >= i and k >= j and k >= l and k >= m and k >= n and k >= o and k >= p):
+        return 10
+    elif(l >= a and l >= b and l >= c and l >= d and l >= e and l >= f and l >= g and l >= h and l >= i and l >= j and l >= k and l >= m and l >= n and l >= o and l >= p):
+        return 11
+    elif(m >= a and m >= b and m >= c and m >= d and m >= e and m >= f and m >= g and m >= h and m >= i and m >= j and m >= k and m >= l and m >= n and m >= o and m >= p):
+        return 12
+    elif(n >= a and n >= b and n >= c and n >= d and n >= e and n >= f and n >= g and n >= h and n >= i and n >= j and n >= k and n >= l and n >= m and n >= o and n >= p):
+        return 13
+    elif(o >= a and o >= b and o >= c and o >= d and o >= e and o >= f and o >= g and o >= h and o >= i and o >= j and o >= k and o >= l and o >= m and o >= n and o >= p):
+        return 14
+    else:
+        return 15
+    
+
 top.mainloop()
-
-
