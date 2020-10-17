@@ -7,11 +7,11 @@
                 
                 Yenira Chacon Molina
                 
-        Programming language: Python 3.9
+        Programming language: Python 3.8
         
         Version: 0.19b
         
-        Last modified: 18/06/2020
+        Last modified: 16/10/2020
         
         Description:    
                     Multiprocessor Simulator
@@ -24,6 +24,15 @@ import tkinter
 import threading
 import time
 from numpy import random
+import random as rand
+
+
+###############################################################
+#---------------------#GLOBAL VARIABLES#----------------------#
+###############################################################
+
+MEMORY_LIST = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+stop_threads = False
 
 ###############################################################
 #--------------------#GRAPHICS AND EVENTS#--------------------#
@@ -153,10 +162,22 @@ canvas.tag_bind(button, "<Button-1>", start)
 canvas.pack()
 
 
+#Function that initializes the processor    
+def processor(idP):
+
+    while(True):
+        global stop_threads
+        if stop_threads:
+            break
+        else:
+            x = calculate_instruction()
+            print(x)
+            time.sleep(5)
+        
 ###########################################################
 #-----------------------#THREADING#-----------------------#
 ###########################################################
-
+    
 #Create threads to initialize the 4 processors
 def create_threads():
     
@@ -164,30 +185,13 @@ def create_threads():
     t2 = threading.Thread(target = processor, args = (2,))
     t3 = threading.Thread(target = processor, args = (3,))
     t4 = threading.Thread(target = processor, args = (4,))
-   
-    t1.start()  
-    t2.start() 
-    t3.start() 
-    t4.start()
-      
-    t1.join() 
-    t2.join()
-    t3.join()
-    t4.join()
-  
-    # Threads successfully executed 
-    print("Processors executed!")
 
-#Function that initializes the processor    
-def processor(idP):
-    i = 3
-    while(i != 0):
-        x = calculate_instruction()
-        print(x)
-        time.sleep(3)
-        i -= 1
-    return "listo"
-
+    while(True):
+        t1.start()  
+        t2.start() 
+        t3.start() 
+        t4.start()
+        top.update_idletasks()
 
 ###########################################################
 #-----------------#INSTRUCTION GENERATOR#-----------------#
@@ -196,7 +200,7 @@ def processor(idP):
 #Function that calculates Binomial distribution
 def calculate_instruction():
     
-    x = random.binomial(n=2, p=0.5, size=10)
+    x = random.binomial(n=2, p=0.5, size=11)
     calcCounter = 0
     readCounter = 0
     writeCounter = 0
@@ -211,6 +215,7 @@ def calculate_instruction():
         else:
             writeCounter += 1
         i += 1
+        
     if(calcCounter>=readCounter and calcCounter>=writeCounter):
         return calc()
     elif(readCounter>=calcCounter and readCounter>=writeCounter):
@@ -218,25 +223,35 @@ def calculate_instruction():
     else:
         return write()
 
-
+#Fuction that reads from main memory
 def read():
-    print("read")
+    direction = direction_generator()
+    return("Reading in direction:" + str(direction))
 
+#function that writes a data in main memory
 def write():
-    print("write")
+    
+    data = data_generator()
+    direction = direction_generator()
+    MEMORY_LIST[direction]= data
+    draw_data(direction,data)
+    
+    print("MEMORY LIST:" + str(MEMORY_LIST))
+    return("Writing in direction" + str(direction) + "data:" + str(data))
 
+#Creates a calc function
 def calc():
-    print("calc")
+    return("calc")
 
 ###########################################################
 #------------------#DIRECTION GENERATOR#------------------#
 ###########################################################
 
+#Function that calculates direction with Poisson Distribution
 def direction_generator():
     
     x = random.poisson(lam=9, size=20)
     l = list(x)
-    print(l)
     
     a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p = l.count(0), l.count(1), l.count(2), l.count(3), l.count(4), l.count(5), l.count(6), l.count(7), l.count(8), l.count(9), l.count(10), l.count(11), l.count(12), l.count(13), l.count(14), l.count(15)
 
@@ -272,6 +287,69 @@ def direction_generator():
         return 14
     else:
         return 15
+
+###########################################################
+#---------------------#GENERATE DATA#---------------------#
+###########################################################
+
+def data_generator():
     
+    data = rand.randrange(65535)
+    return hex(data)
+
+top.update()
+
+def draw_data(pos,data):
+
+    print("Esta es la posicion: " + str(pos))
+    if(pos == 0):
+        canvas.create_rectangle(1100, 50, 1200, 100, fill='#B180B6') #1
+        canvas.create_text(1150, 73, text=str(data), font = "Arial")
+    elif(pos == 1):
+        canvas.create_rectangle(1100, 100, 1200, 150, fill='#B180B6') #2
+        canvas.create_text(1150, 123, text=str(data), font = "Arial")
+    elif(pos == 2):
+        canvas.create_rectangle(1100, 150, 1200, 200, fill='#B180B6') #3
+        canvas.create_text(1150, 173, text=str(data), font = "Arial")
+    elif(pos == 3):
+        canvas.create_rectangle(1100, 200, 1200, 250, fill='#B180B6') #4
+        canvas.create_text(1150, 223, text=str(data), font = "Arial")
+    elif(pos == 4):
+        canvas.create_rectangle(1100, 250, 1200, 300, fill='#B180B6') #5
+        canvas.create_text(1150, 273, text=str(data), font = "Arial")
+    elif(pos == 5):
+        canvas.create_rectangle(1100, 300, 1200, 350, fill='#B180B6') #6
+        canvas.create_text(1150, 323, text=str(data), font = "Arial")
+    elif(pos == 6):
+        canvas.create_rectangle(1100, 350, 1200, 400, fill='#B180B6') #7
+        canvas.create_text(1150, 373, text=str(data), font = "Arial")
+    elif(pos == 7):
+        canvas.create_rectangle(1100, 400, 1200, 450, fill='#B180B6') #8
+        canvas.create_text(1150, 423, text=str(data), font = "Arial")
+    elif(pos == 8):
+        canvas.create_rectangle(1250, 50, 1350, 100, fill='#B180B6') #9
+        canvas.create_text(1300, 73, text=str(data), font = "Arial")
+    elif(pos == 9):
+        canvas.create_rectangle(1250, 100, 1350, 150, fill='#B180B6') #10
+        canvas.create_text(1300, 123, text=str(data), font = "Arial")
+    elif(pos == 10):
+        canvas.create_rectangle(1250, 150, 1350, 200, fill='#B180B6') #11
+        canvas.create_text(1300, 173, text=str(data), font = "Arial")
+    elif(pos == 11):
+        canvas.create_rectangle(1250, 200, 1350, 250, fill='#B180B6') #12
+        canvas.create_text(1300, 223, text=str(data), font = "Arial")
+    elif(pos == 12):
+        canvas.create_rectangle(1250, 250, 1350, 300, fill='#B180B6') #13
+        canvas.create_text(1300, 273, text=str(data), font = "Arial")
+    elif(pos == 13):
+        canvas.create_rectangle(1250, 300, 1350, 350, fill='#B180B6') #14
+        canvas.create_text(1300, 323, text=str(data), font = "Arial")
+    elif(pos == 14):
+        canvas.create_rectangle(1250, 350, 1350, 400, fill='#B180B6') #15
+        canvas.create_text(1300, 373, text=str(data), font = "Arial")
+    else:
+        canvas.create_rectangle(1250, 400, 1350, 450, fill='#B180B6') #16
+        canvas.create_text(1300, 423, text=str(data), font = "Arial")
+
 
 top.mainloop()
