@@ -7,11 +7,11 @@
                 
                 Yenira Chacon Molina
                 
-        Programming language: Python 3.8
+        Programming language: Python 3.9
         
         Version: 0.19b
         
-        Last modified: 16/10/2020
+        Last modified: 17/10/2020
         
         Description:    
                     Multiprocessor Simulator
@@ -31,7 +31,23 @@ import random as rand
 #---------------------#GLOBAL VARIABLES#----------------------#
 ###############################################################
 
-MEMORY_LIST = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+MEMORY_LIST = [0,"0xFFFF",0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+
+CACHE1 = ["0x00F5",0,"0x3000","0x04C0"]
+CACHE2 = [0,0,0,0]
+CACHE3 = [0,0,0,0]
+CACHE4 = [0,0,0,0]
+
+CACHE1_VALID = [1,0,1,1]
+CACHE2_VALID = [0,0,0,0]
+CACHE3_VALID = [0,0,0,0]
+CACHE4_VALID = [0,0,0,0]
+
+CACHE1_DIR = [0,0,3,7]
+CACHE2_DIR = [0,0,0,0]
+CACHE3_DIR = [0,0,0,0]
+CACHE4_DIR = [0,0,0,0]
+
 stop_threads = False
 
 ###############################################################
@@ -170,9 +186,9 @@ def processor(idP):
         if stop_threads:
             break
         else:
-            x = calculate_instruction()
+            x = calculate_instruction(idP)
             print(x)
-            time.sleep(5)
+            time.sleep(2)
         
 ###########################################################
 #-----------------------#THREADING#-----------------------#
@@ -182,15 +198,15 @@ def processor(idP):
 def create_threads():
     
     t1 = threading.Thread(target = processor, args = (1,)) 
-    t2 = threading.Thread(target = processor, args = (2,))
-    t3 = threading.Thread(target = processor, args = (3,))
-    t4 = threading.Thread(target = processor, args = (4,))
+    #t2 = threading.Thread(target = processor, args = (2,))
+   # t3 = threading.Thread(target = processor, args = (3,))
+    #t4 = threading.Thread(target = processor, args = (4,))
 
     while(True):
         t1.start()  
-        t2.start() 
-        t3.start() 
-        t4.start()
+       # t2.start() 
+       # t3.start() 
+       # t4.start()
         top.update_idletasks()
 
 ###########################################################
@@ -198,7 +214,7 @@ def create_threads():
 ###########################################################
 
 #Function that calculates Binomial distribution
-def calculate_instruction():
+def calculate_instruction(ID):
     
     x = random.binomial(n=2, p=0.5, size=11)
     calcCounter = 0
@@ -217,32 +233,369 @@ def calculate_instruction():
         i += 1
         
     if(calcCounter>=readCounter and calcCounter>=writeCounter):
-        return calc()
+        return calc(ID)
     elif(readCounter>=calcCounter and readCounter>=writeCounter):
-        return read()
+        return read(ID,1)
     else:
-        return write()
+        return write(ID)
 
-#Fuction that reads from main memory
-def read():
-    direction = direction_generator()
-    return("Reading in direction:" + str(direction))
+#Fuction that reads from cache
+def read(procID, direction):
+    if(procID == 1):
+        if(direction % 2 == 0):             #SET PAR?
+            if(CACHE1_VALID[0] == 0):       #BLOQUE INVALIDO?
+                CACHE1[0] = MEMORY_LIST[direction]
+                CACHE1_VALID[0] = 1
+            elif(CACHE1_VALID[1] == 0):       #BLOQUE INVALIDO?
+                CACHE1[1] = MEMORY_LIST[direction]
+                CACHE1_VALID[1] = 1
+                print(CACHE1)
+            elif(CACHE1_VALID[0] == 1 and search(CACHE1_DIR,direction)):     #BLOQUE VALIDO?
+                return(CACHE1[0])
+            elif(CACHE1_VALID[1] == 1 and search(CACHE1_DIR,direction)):     #BLOQUE VALIDO?
+                return(CACHE1[1])
+            elif(search(CACHE1_DIR,direction) == False):
+                oldDir = CACHE1_DIR[0]
+                newDir = direction
+                print("Entro")                
+                replacement_policies(procID,oldDir, newDir, 0)
+                
 
+        elif(direction % 2 == 1):             #SET PAR?
+            if(CACHE1_VALID[2] == 0):       #BLOQUE INVALIDO?
+                CACHE1[2] = MEMORY_LIST[direction]
+                CACHE1_VALID[2] = 1
+                #print(CACHE1)
+            elif(CACHE1_VALID[3] == 0):     #BLOQUE INVALIDO?
+                CACHE1[3] = MEMORY_LIST[direction]
+                CACHE1_VALID[3] = 1
+            elif(CACHE1_VALID[2] == 1 and search(CACHE2_DIR,direction)):     #BLOQUE VALIDO?
+                return(CACHE1[2])
+            elif(CACHE1_VALID[3] == 1 and search(CACHE2_DIR,direction)):     #BLOQUE VALIDO?
+                return(CACHE1[3])
+            elif(search(CACHE1_DIR,direction) == False):
+                oldDir = CACHE1_DIR[2]
+                print("OLD: " + str(oldDir))
+                newDir = direction
+                replacement_policies(procID,oldDir, newDir, 2)
+
+    elif(procID == 2):
+        if(direction % 2 == 0):             #SET PAR?
+            if(CACHE2_VALID[0] == 0):       #BLOQUE INVALIDO?
+                CACHE2[0] = MEMORY_LIST[direction]
+                CACHE2_VALID[0] = 1
+            elif(CACHE2_VALID[1] == 0):       #BLOQUE INVALIDO?
+                CACHE2[1] = MEMORY_LIST[direction]
+                CACHE2_VALID[1] = 1
+            elif(CACHE2_VALID[0] == 1 and search(CACHE2_DIR,direction)):     #BLOQUE VALIDO?
+                return(CACHE2[0])
+            elif(CACHE2_VALID[1] == 1 and search(CACHE2_DIR,direction)):     #BLOQUE VALIDO?
+                return(CACHE2[1])
+            elif(search(CACHE2_DIR,direction) == False):
+                oldDir = CACHE2_DIR[0]
+                newDir = direction
+                replacement_policies(procID,oldDir, newDir, 0)
+
+        elif(direction % 2 == 1):             #SET PAR?
+            if(CACHE2_VALID[2] == 0):       #BLOQUE INVALIDO?
+                CACHE2[2] = MEMORY_LIST[direction]
+                CACHE2_VALID[2] = 1
+            elif(CACHE2_VALID[3] == 0):     #BLOQUE INVALIDO?
+                CACHE2[3] = MEMORY_LIST[direction]
+                CACHE2_VALID[3] = 1
+            elif(CACHE2_VALID[2] == 1 and search(CACHE2_DIR,direction)):     #BLOQUE VALIDO?
+                return(CACHE2[2])
+            elif(CACHE2_VALID[3] == 1 and search(CACHE2_DIR,direction)):     #BLOQUE VALIDO?
+                return(CACHE2[3])
+            elif(search(CACHE2_DIR,direction) == False):
+                oldDir = CACHE2_DIR[2]
+                newDir = direction
+                replacement_policies(procID,oldDir, newDir, 2)
+
+    elif(procID == 3):
+        if(direction % 2 == 0):             #SET PAR?
+            if(CACHE3_VALID[0] == 0):       #BLOQUE INVALIDO?
+                CACHE3[0] = MEMORY_LIST[direction]
+                CACHE3_VALID[0] = 1
+            elif(CACHE3_VALID[1] == 0):       #BLOQUE INVALIDO?
+                CACHE3[1] = MEMORY_LIST[direction]
+                CACHE3_VALID[1] = 1
+            elif(CACHE3_VALID[0] == 1 and search(CACHE3_DIR,direction)):     #BLOQUE VALIDO?
+                return(CACHE3[0])
+            elif(CACHE3_VALID[1] == 1 and search(CACHE3_DIR,direction)):     #BLOQUE VALIDO?
+                return(CACHE3[1])
+            elif(search(CACHE3_DIR,direction) == False):
+                oldDir = CACHE3_DIR[0]
+                newDir = direction
+                replacement_policies(procID,oldDir, newDir, 0)
+
+        elif(direction % 2 == 1):             #SET PAR?
+            if(CACHE3_VALID[2] == 0):       #BLOQUE INVALIDO?
+                CACHE3[2] = MEMORY_LIST[direction]
+                CACHE3_VALID[2] = 1
+            elif(CACHE3_VALID[3] == 0):     #BLOQUE INVALIDO?
+                CACHE3[3] = MEMORY_LIST[direction]
+                CACHE3_VALID[3] = 1
+            elif(CACHE3_VALID[2] == 1 and search(CACHE3_DIR,direction)):     #BLOQUE VALIDO?
+               return(CACHE2[2])
+            elif(CACHE3_VALID[3] == 1 and search(CACHE3_DIR,direction)):     #BLOQUE VALIDO?
+                return(CACHE3[3])
+            elif(search(CACHE1_DIR,direction) == False):
+                oldDir = CACHE3_DIR[2]
+                newDir = direction
+                replacement_policies(procID,oldDir, newDir, 2)
+
+    elif(procID == 4):
+        if(direction % 2 == 0):             #SET PAR?
+            if(CACHE4_VALID[0] == 0):       #BLOQUE INVALIDO?
+                CACHE4[0] = MEMORY_LIST[direction]
+                CACHE4_VALID[0] = 1
+            elif(CACHE4_VALID[1] == 0):       #BLOQUE INVALIDO?
+                CACHE4[1] = MEMORY_LIST[direction]
+                CACHE4_VALID[1] = 1
+            elif(CACHE4_VALID[0] == 1 and search(CACHE4_DIR,direction)):     #BLOQUE VALIDO?
+                return(CACHE4[0])
+            elif(CACHE4_VALID[1] == 1 and search(CACHE4_DIR,direction)):     #BLOQUE VALIDO?
+                return(CACHE4[1])
+            elif(search(CACHE4_DIR,direction) == False):
+                oldDir = CACHE4_DIR[0]
+                newDir = direction
+                replacement_policies(procID,oldDir, newDir, 0)
+
+        elif(direction % 2 == 1):             #SET PAR?
+            if(CACHE4_VALID[2] == 0):       #BLOQUE INVALIDO?
+                CACHE4[2] = MEMORY_LIST[direction]  #TRAER DE MEMORIA
+                CACHE4_VALID[2] = 1
+            elif(CACHE4_VALID[3] == 0):     #BLOQUE INVALIDO?
+                CACHE4[3] = MEMORY_LIST[direction]  #TRAER DE MEMORIA
+                CACHE4_VALID[3] = 1
+            elif(CACHE4_VALID[2] == 1 and search(CACHE4_DIR,direction)):     #BLOQUE VALIDO?
+                return(CACHE4[2])            #READ
+            elif(CACHE4_VALID[3] == 1 and search(CACHE4_DIR,direction)):     #BLOQUE VALIDO?
+                return(CACHE4[3])            #READ
+            elif(search(CACHE4_DIR,direction) == False):
+                oldDir = CACHE4_DIR[0]
+                newDir = direction
+                replacement_policies(procID,oldDir, newDir, 2)
+    else:
+        return("EXCEPTION")
+                
+#Function that searches in list
+def search(list,data):
+    for i in range(len(list)):
+        if list[i] == data:
+            return True
+    return False
+
+#Replacement Policies function
+def replacement_policies(procID,olddirection, newDirection, pos):
+    if(procID == 1):
+        MEMORY_LIST[olddirection] = CACHE1[pos]
+        CACHE1[pos] = MEMORY_LIST[newDirection]
+        print(MEMORY_LIST)
+        print(CACHE1)
+    if(procID == 2):
+        MEMORY_LIST[olddirection] = CACHE2[pos]
+        CACHE2[pos] = MEMORY_LIST[newDirection]
+    if(procID == 3):
+        MEMORY_LIST[olddirection] = CACHE3[pos]
+        CACHE3[pos] = MEMORY_LIST[newDirection]
+    if(procID == 4):
+        MEMORY_LIST[olddirection] = CACHE4[pos]
+        CACHE4[pos] = MEMORY_LIST[newDirection]
+    
 #function that writes a data in main memory
-def write():
+def write(procID, direction, data):
+    if(procID == 1):
+        if(direction % 2 == 0):             #SET PAR?
+            if(CACHE1_VALID[0] == 0):       #BLOQUE INVALIDO?
+                CACHE1[0] = MEMORY_LIST[direction]
+                CACHE1[0] = data
+                CACHE1_VALID[0] = 1
+            elif(CACHE1_VALID[1] == 0):       #BLOQUE INVALIDO?
+                CACHE1[1] = MEMORY_LIST[direction]
+                CACHE1_VALID[1] = 1
+                print(CACHE1)
+            elif(CACHE1_VALID[0] == 1 and search(CACHE1_DIR,direction)):     #BLOQUE VALIDO?
+                CACHE1[0] = data
+                return(CACHE1[0])
+            elif(CACHE1_VALID[1] == 1 and search(CACHE1_DIR,direction)):     #BLOQUE VALIDO?
+                CACHE1[1] = data
+                return(CACHE1[1])
+            elif(search(CACHE1_DIR,direction) == False):
+                oldDir = CACHE1_DIR[0]
+                newDir = direction
+                print("Entro")
+                replacement_policies(procID,oldDir, newDir, 0)
+                
+
+        elif(direction % 2 == 1):             #SET IMPAR?
+            if(CACHE1_VALID[2] == 0):       #BLOQUE INVALIDO?
+                CACHE1[2] = MEMORY_LIST[direction]
+                CACHE1_VALID[2] = 1
+                CACHE1[2] = data
+            elif(CACHE1_VALID[3] == 0):     #BLOQUE INVALIDO?
+                CACHE1[3] = MEMORY_LIST[direction]
+                CACHE1_VALID[3] = 1
+                CACHE1[3] = data
+            elif(CACHE1_VALID[2] == 1 and search(CACHE2_DIR,direction)):     #BLOQUE VALIDO?
+                CACHE1[2] = data
+                return(CACHE1[2])
+            elif(CACHE1_VALID[3] == 1 and search(CACHE2_DIR,direction)):     #BLOQUE VALIDO?
+                CACHE1[3] = data
+                return(CACHE1[3])
+            elif(search(CACHE1_DIR,direction) == False):
+                oldDir = CACHE1_DIR[2]
+                print("OLD: " + str(oldDir))
+                newDir = direction
+                replacement_policies(procID,oldDir, newDir, 2)
+
+    elif(procID == 2):
+        if(direction % 2 == 0):             #SET PAR?
+            if(CACHE2_VALID[0] == 0):       #BLOQUE INVALIDO?
+                CACHE2[0] = MEMORY_LIST[direction]
+                CACHE2[0] = data
+                CACHE2_VALID[0] = 1
+            elif(CACHE2_VALID[1] == 0):       #BLOQUE INVALIDO?
+                CACHE2[1] = MEMORY_LIST[direction]
+                CACHE2[1] = data
+                CACHE2_VALID[1] = 1
+            elif(CACHE2_VALID[0] == 1 and search(CACHE2_DIR,direction)):     #BLOQUE VALIDO?
+                CACHE2[0] = data
+                return(CACHE2[0])
+            elif(CACHE2_VALID[1] == 1 and search(CACHE2_DIR,direction)):     #BLOQUE VALIDO?
+                CACHE2[1] = data
+                return(CACHE2[1])
+            elif(search(CACHE2_DIR,direction) == False):
+                oldDir = CACHE2_DIR[0]
+                newDir = direction
+                replacement_policies(procID,oldDir, newDir, 0)
+
+        elif(direction % 2 == 1):             #SET PAR?
+            if(CACHE2_VALID[2] == 0):       #BLOQUE INVALIDO?
+                CACHE2[2] = MEMORY_LIST[direction]
+                CACHE2[2] = data
+                CACHE2_VALID[2] = 1
+            elif(CACHE2_VALID[3] == 0):     #BLOQUE INVALIDO?
+                CACHE2[3] = MEMORY_LIST[direction]
+                CACHE2[3] = data
+                CACHE2_VALID[3] = 1
+            elif(CACHE2_VALID[2] == 1 and search(CACHE2_DIR,direction)):     #BLOQUE VALIDO?
+                CACHE2[2] = data
+                return(CACHE2[2])
+            elif(CACHE2_VALID[3] == 1 and search(CACHE2_DIR,direction)):     #BLOQUE VALIDO?
+                CACHE2[3] = data
+                return(CACHE2[3])
+            elif(search(CACHE2_DIR,direction) == False):
+                oldDir = CACHE2_DIR[2]
+                newDir = direction
+                replacement_policies(procID,oldDir, newDir, 2)
+
+    elif(procID == 3):
+        if(direction % 2 == 0):             #SET PAR?
+            if(CACHE3_VALID[0] == 0):       #BLOQUE INVALIDO?
+                CACHE3[0] = MEMORY_LIST[direction]
+                CACHE3[0] = data
+                CACHE3_VALID[0] = 1
+            elif(CACHE3_VALID[1] == 0):       #BLOQUE INVALIDO?
+                CACHE3[1] = MEMORY_LIST[direction]
+                CACHE3[1] = data
+                CACHE3_VALID[1] = 1
+            elif(CACHE3_VALID[0] == 1 and search(CACHE3_DIR,direction)):     #BLOQUE VALIDO?
+                CACHE3[0] = data
+                return(CACHE3[0])
+            elif(CACHE3_VALID[1] == 1 and search(CACHE3_DIR,direction)):     #BLOQUE VALIDO?
+                CACHE3[1] = data
+                return(CACHE3[1])
+            elif(search(CACHE3_DIR,direction) == False):
+                oldDir = CACHE3_DIR[0]
+                newDir = direction
+                replacement_policies(procID,oldDir, newDir, 0)
+
+        elif(direction % 2 == 1):             #SET PAR?
+            if(CACHE3_VALID[2] == 0):       #BLOQUE INVALIDO?
+                CACHE3[2] = MEMORY_LIST[direction]
+                CACHE3[2] = data
+                CACHE3_VALID[2] = 1
+            elif(CACHE3_VALID[3] == 0):     #BLOQUE INVALIDO?
+                CACHE3[3] = MEMORY_LIST[direction]
+                CACHE3[3] = data
+                CACHE3_VALID[3] = 1
+            elif(CACHE3_VALID[2] == 1 and search(CACHE3_DIR,direction)):     #BLOQUE VALIDO?
+                CACHE3[2] = data
+               return(CACHE2[2])
+            elif(CACHE3_VALID[3] == 1 and search(CACHE3_DIR,direction)):     #BLOQUE VALIDO?
+                CACHE3[3] = data
+                return(CACHE3[3])
+            elif(search(CACHE1_DIR,direction) == False):
+                oldDir = CACHE3_DIR[2]
+                newDir = direction
+                replacement_policies(procID,oldDir, newDir, 2)
+
+    elif(procID == 4):
+        if(direction % 2 == 0):             #SET PAR?
+            if(CACHE4_VALID[0] == 0):       #BLOQUE INVALIDO?
+                CACHE4[0] = MEMORY_LIST[direction]
+                CACHE4[0] = data
+                CACHE4_VALID[0] = 1
+            elif(CACHE4_VALID[1] == 0):       #BLOQUE INVALIDO?
+                CACHE4[1] = MEMORY_LIST[direction]
+                CACHE4[1] = data
+                CACHE4_VALID[1] = 1
+            elif(CACHE4_VALID[0] == 1 and search(CACHE4_DIR,direction)):     #BLOQUE VALIDO?
+                CACHE4[0] = data
+                return(CACHE4[0])
+            elif(CACHE4_VALID[1] == 1 and search(CACHE4_DIR,direction)):     #BLOQUE VALIDO?
+                CACHE4[1] = data
+                return(CACHE4[1])
+            elif(search(CACHE4_DIR,direction) == False):
+                oldDir = CACHE4_DIR[0]
+                newDir = direction
+                replacement_policies(procID,oldDir, newDir, 0)
+
+        elif(direction % 2 == 1):             #SET PAR?
+            if(CACHE4_VALID[2] == 0):       #BLOQUE INVALIDO?
+                CACHE4[2] = MEMORY_LIST[direction]  #TRAER DE MEMORIA
+                CACHE4[2] = data
+                CACHE4_VALID[2] = 1
+            elif(CACHE4_VALID[3] == 0):     #BLOQUE INVALIDO?
+                CACHE4[3] = MEMORY_LIST[direction]  #TRAER DE MEMORIA
+                CACHE4[3] = data
+                CACHE4_VALID[3] = 1
+            elif(CACHE4_VALID[2] == 1 and search(CACHE4_DIR,direction)):     #BLOQUE VALIDO?
+                CACHE4[2] = data
+                return(CACHE4[2])            #READ
+            elif(CACHE4_VALID[3] == 1 and search(CACHE4_DIR,direction)):     #BLOQUE VALIDO?
+                CACHE4[3] = data
+                return(CACHE4[3])            #READ
+            elif(search(CACHE4_DIR,direction) == False):
+                oldDir = CACHE4_DIR[0]
+                newDir = direction
+                replacement_policies(procID,oldDir, newDir, 2)
+    else:
+        return("EXCEPTION")
     
-    data = data_generator()
-    direction = direction_generator()
-    MEMORY_LIST[direction]= data
-    draw_data(direction,data)
-    
-    print("MEMORY LIST:" + str(MEMORY_LIST))
-    return("Writing in direction" + str(direction) + "data:" + str(data))
 
 #Creates a calc function
-def calc():
+def calc(procID):
+    draw_processor_id(procID,0,0)
     return("calc")
 
+#Function that draws the instruction that is been executed    
+def draw_processor_id(procID,direction,data):
+    if (procID == 1):
+        canvas.create_rectangle(30, 310, 165, 350, fill='#2C70A9') #1
+        canvas.create_text(90, 330, text= "P1:" + str(direction) + "," + str(data), font = "Arial")
+    if (procID == 2):
+        canvas.create_rectangle(300, 310, 425, 350, fill='#2C70A9') #2
+        canvas.create_text(360, 330, text= "P2:" + str(direction) + "," + str(data), font = "Arial")
+    if (procID == 3):
+        canvas.create_rectangle(530, 310, 670, 350, fill='#2C70A9') #3
+        canvas.create_text(595, 330, text= "P3:" + str(direction) + "," + str(data), font = "Arial")
+    if (procID == 4):
+        canvas.create_rectangle(800, 310, 920, 350, fill='#2C70A9') #4
+        canvas.create_text(860, 330, text= "P4:" + str(direction) + "," + str(data), font = "Arial")
+        
 ###########################################################
 #------------------#DIRECTION GENERATOR#------------------#
 ###########################################################
@@ -292,13 +645,13 @@ def direction_generator():
 #---------------------#GENERATE DATA#---------------------#
 ###########################################################
 
+#Generates random hexa data
 def data_generator():
     
     data = rand.randrange(65535)
     return hex(data)
 
-top.update()
-
+#Function that draws data on screen an update it
 def draw_data(pos,data):
 
     print("Esta es la posicion: " + str(pos))
